@@ -1,3 +1,3 @@
 #!/bin/bash
-source bin/activate
-python3 app.py
+source .venv/bin/activate
+uvicorn main:app --reload --port 5000
