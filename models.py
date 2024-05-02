@@ -21,16 +21,17 @@ class Token(SQLModel):
 # -------------------------------------------------------------------------------------------------#
 
 
-class ServiceBase(SQLModel):
-    date: str
+class EventsBase(SQLModel):
+    event_id: str
+    created_at: str
     name: str
-    company_id: int = Field(default=None, foreign_key="company.id")
-    service_type: str
-    scrapping_type: str
-    scrapping_config: str
+    description: str
+    location: str
+    organizer: str
+    user_id: int = Field(default=None, foreign_key="user.id")
 
 
-class Service(ServiceBase, table=True):
+class Events(EventsBase, table=True):
     id: int = Field(default=None, primary_key=True)
 
 
@@ -41,16 +42,12 @@ class UserBase(SQLModel):
     name: str
     email: EmailStr
     phone: str
-    password: str
-    role: Roles = Field(default="user")
-    disabled: bool | None = None
+    dni: str
 
-
-class UserCreate(UserBase):
-    password: str
 
 class User(UserBase, table=True):
     id: int = Field(default=None, primary_key=True)
     name: str = Field(index=True, unique=True)
     email: str = Field(index=True, unique=True)
     phone: str = Field(index=True, unique=True)
+    dni: str = Field(index=True, unique=True)
