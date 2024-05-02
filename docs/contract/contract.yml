@@ -1,0 +1,168 @@
+openapi: 3.0.0
+info:
+  title: TICKETEK - Event Management API
+  description: API for managing events and registrations
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /events:
+    # post:
+    #   tags:
+    #     - events
+    #   summary: Create a new event
+    #   requestBody:
+    #     required: true
+    #     content:
+    #       application/json:
+    #         schema:
+    #           $ref: '#/components/schemas/Event'
+    #   responses:
+    #     '201':
+    #       description: Event created successfully
+    get:
+      tags:
+        - events
+      summary: Get the list of events
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventWithRegistrations'
+  /events/{id}:
+    get:
+      tags:
+        - events
+      summary: Get details of a specific event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the event to retrieve
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Details of the requested event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventWithRegistrations'
+  /events/{id}/registrations:
+    post:
+      tags:
+        - registrations
+      summary: Register for an event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the event to register for
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
+      responses:
+        '200':
+          description: Registration successful
+    # get:
+    #   tags:
+    #     - registrations
+    #   summary: Get the list of registrations for an event
+    #   parameters:
+    #     - in: path
+    #       name: id
+    #       required: true
+    #       description: ID of the event to retrieve registrations for
+    #       schema:
+    #         type: integer
+    #   responses:
+    #     '200':
+    #       description: List of registrations for the event
+    #       content:
+    #         application/json:
+    #           schema:
+    #             type: array
+    #             items:
+    #               $ref: '#/components/schemas/Registration'
+  /events/{id}/registrations/{registrationId}:
+    delete:
+      tags:
+        - registrations
+      summary: Cancel registration
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the event from which to cancel registration
+          schema:
+            type: integer
+        - in: path
+          name: registrationId
+          required: true
+          description: ID of the registration to cancel
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Registration canceled successfully
+components:
+  schemas:
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+        location:
+          type: object
+          properties:
+            address:
+              type: string
+            latitude:
+              type: number
+            longitude:
+              type: number
+        max_attendees:
+          type: integer
+    Registration:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        dni:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+    EventWithRegistrations:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+        - type: object
+          properties:
+            registrations:
+              type: array
+              items:
+                $ref: '#/components/schemas/Registration'

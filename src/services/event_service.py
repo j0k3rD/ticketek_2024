@@ -1,49 +1,20 @@
-from models import Events
+from src.database.models import Event
 from sqlmodel import Session, select
 from fastapi import HTTPException
 
 
-def get_events(session: Session) -> list[Events]:
-    return session.exec(select(Events)).all()
+def get_events(session: Session) -> list[Event]:
+    return session.exec(select(Event)).all()
 
 
-def get_event(session: Session, event_id: int) -> Events:
-    event = session.get(Events, event_id)
+def get_event(session: Session, event_id: int) -> Event:
+    event = session.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Events not found")
     return event
 
-
-def update_event(session: Session, event_id: int, event_data: Events) -> Events:
-    event = session.get(Events, event_id)
+def get_event_by_name(session: Session, name: str) -> Event:
+    event = session.exec(select(Event).where(Event.name == name)).first()
     if event is None:
-        raise HTTPException(status_code=404, detail="Events not found")
-
-    event.name = event_data.name
-    event.event_type = event_data.event_type
-
-    session.add(event)
-    session.commit()
-    session.refresh(event)
-    return event
-
-
-def delete_event(session: Session, event_id: int) -> Events:
-    event = session.get(Events, event_id)
-    if event is None:
-        raise HTTPException(status_code=404, detail="Events not found")
-
-    session.delete(event)
-    session.commit()
-
-
-def create_event(session: Session, event_data: Events) -> Events:
-    event = Events(
-        created_at=event_data.created_at,
-        name=event_data.name,
-        event_type=event_data.event_type,
-    )
-    session.add(event)
-    session.commit()
-    session.refresh(event)
+        raise HTTPException(status_code=404, detail="Event not found")
     return event
