@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from src.config.db import init_db
 from src.routes import (
     user,
-    service,
+    event,
     token,
 )
 
@@ -29,5 +29,5 @@ app = FastAPI(
 )
 
 app.include_router(user.user)
-app.include_router(service.service)
+app.include_router(event.event)
 app.include_router(token.token)

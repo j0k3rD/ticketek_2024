@@ -1,4 +1,4 @@
-from models import User, UserCreate, Property
+from models import User
 from sqlmodel import Session, select
 from passlib.context import CryptContext
 
@@ -13,7 +13,7 @@ def get_user(session: Session, user_id: int) -> User:
     return session.get(User, user_id)
 
 
-def update_user(session: Session, user_id: int, user_data: UserCreate) -> User:
+def update_user(session: Session, user_id: int, user_data: User) -> User:
     user = session.get(User, user_id)
     user.name = user_data.name
     user.email = user_data.email
@@ -33,7 +33,7 @@ def delete_user(session: Session, user_id: int) -> User:
     return user
 
 
-def create_user(session: Session, user_data: UserCreate) -> User:
+def create_user(session: Session, user_data: User) -> User:
     user = User(
         name=user_data.name,
         email=user_data.email,
@@ -50,16 +50,6 @@ def create_user(session: Session, user_data: UserCreate) -> User:
         return "User already exists."
 
     session.add(user)
-
-    if user_data.properties:
-        for client_property in user_data.properties:
-            property_obj = Property(
-                created_at=client_property.created_at,
-                property_type=client_property.property_type,
-                user=user,
-            )
-            session.add(property_obj)
-
     session.commit()
     session.refresh(user)
     return user

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Path, HTTPException
 from src.config.db import get_session
-from models import User, UserCreate, UserWithProperties
+from models import User
 from typing import Annotated
 from sqlmodel import Session
 from src.routes.auth import RoleChecker
@@ -25,7 +25,7 @@ async def get_users_route(
 
 @user.get(
     "/users/{user_id}",
-    response_model=UserWithProperties,
+    response_model=User,
     tags=["users"],
 )
 async def get_user_route(
@@ -42,7 +42,7 @@ async def get_user_route(
 @user.patch("/users/{user_id}", tags=["users"])
 async def update_user_route(
     user_id: int,
-    user_data: UserCreate,
+    user_data: User,
     _: Annotated[bool, Depends(RoleChecker(allowed_roles=["user"]))],
     session: Session = Depends(get_session),
 ) -> User:
@@ -66,7 +66,7 @@ async def delete_user_route(
 
 @user.post("/users", tags=["users"])
 async def create_user_route(
-    user_data: UserCreate,
+    user_data: User,
     _: Annotated[bool, Depends(RoleChecker(allowed_roles=["user"]))],
     session: Session = Depends(get_session),
 ) -> User:
