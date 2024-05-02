@@ -7,6 +7,7 @@ from sqlmodel import Session, select
 from src.services.registration_service import (
     get_registrations_by_dni,
     create_registration,
+    delete_registration,
 )
 # from src.admin.admin_services import (
 #     update_event,
@@ -31,6 +32,15 @@ def create_registration_route(
     session: Session = Depends(get_session),
 ) -> Registration:
     return create_registration(session, registration_data)
+
+@registration.delete("/events/{event_id}/registrations/{registration_id}", tags=["registrations"])
+def delete_registration_route(
+    event_id: Annotated[int, Path(name="The Event ID")],
+    registration_id: Annotated[int, Path(name="The Registration ID")],
+    session: Session = Depends(get_session),
+) -> Registration:
+    return delete_registration(session, registration_id)
+
 
 
 #! SOLO PARA ADMIN

@@ -1,4 +1,6 @@
-from src.database.models import Registration, Event
+from src.database.models import Registration, Event 
+#libreria generate random string
+import random
 from sqlmodel import Session, select
 from fastapi import HTTPException
 from src.utils.send_email import send_email
@@ -20,7 +22,10 @@ def get_registrations_by_dni(session: Session, dni: int) -> Registration:
 #     return registration
 
 
-def delete_registration(session: Session, registration_id: int) -> Registration:
+def delete_registration(session: Session, event_id: int, registration_id: int) -> Registration:
+    event = session.get(Event, event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
     registration = session.get(Registration, registration_id)
     session.delete(registration)
     session.commit()
@@ -67,7 +72,9 @@ def approve_registration(session: Session, registration_id: int) -> Registration
         raise HTTPException(status_code=404, detail="Registration not found")
 
     registration.status = "approved"
-
+    #General codigo random de 6 digitos para el token
+    registration.token = ''.join(random.choices('0123456789ABC', k=6))
+    
     # Agregar el usuario a la lista de asistentes del evento
     event = session.get(Event, registration.event_id)
 
@@ -77,6 +84,8 @@ def approve_registration(session: Session, registration_id: int) -> Registration
         "email": registration.email,
         "phone": registration.phone,
         "dni": registration.dni,
+        "token": registration.token,
+
     }
 
     session.add(registration)
@@ -86,7 +95,7 @@ def approve_registration(session: Session, registration_id: int) -> Registration
     send_email(
         registration.email,
         "Registro Aprobado!",
-        f"Su registro al evento {event.title} ha sido aprobado."
+        f"Su registro al evento {event.title} ha sido aprobado, su clave de validacion es {registration.token}."
     )
 
     return registration

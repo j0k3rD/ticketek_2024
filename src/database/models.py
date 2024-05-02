@@ -53,6 +53,7 @@ class RegistrationBase(SQLModel):
     phone: str
     dni: int
     status: RegistrationStatus = RegistrationStatus.pending
+    token: str = Field(default=None)
     event_id: int = Field(foreign_key="event.id")
 
 
