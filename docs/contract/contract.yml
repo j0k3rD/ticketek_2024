@@ -73,6 +73,26 @@ paths:
       responses:
         '200':
           description: Registration successful
+    
+  /events/by-name/{name}:
+    get:
+      tags:
+        - events
+      summary: Get events by name
+      parameters:
+        - in: path
+          name: name
+          required: true
+          description: Name of the event to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Details of the requested event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventWithRegistrations'
     # get:
     #   tags:
     #     - registrations
@@ -93,27 +113,48 @@ paths:
     #             type: array
     #             items:
     #               $ref: '#/components/schemas/Registration'
-  /events/{id}/registrations/{registrationId}:
-    delete:
+
+  /registrations/{dni}:
+    get:
       tags:
         - registrations
-      summary: Cancel registration
+      summary: Get registration by DNI
       parameters:
         - in: path
-          name: id
+          name: dni
           required: true
-          description: ID of the event from which to cancel registration
+          description: DNI of the registration to retrieve
           schema:
-            type: integer
-        - in: path
-          name: registrationId
-          required: true
-          description: ID of the registration to cancel
-          schema:
-            type: integer
+            type: string
       responses:
-        '204':
-          description: Registration canceled successfully
+        '200':
+          description: Details of the requested registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+
+  # /events/{id}/registrations/{registrationId}:
+  #   delete:
+  #     tags:
+  #       - registrations
+  #     summary: Cancel registration
+  #     parameters:
+  #       - in: path
+  #         name: id
+  #         required: true
+  #         description: ID of the event from which to cancel registration
+  #         schema:
+  #           type: integer
+  #       - in: path
+  #         name: registrationId
+  #         required: true
+  #         description: ID of the registration to cancel
+  #         schema:
+  #           type: integer
+  #     responses:
+  #       '204':
+  #         description: Registration canceled successfully
 components:
   schemas:
     Event:

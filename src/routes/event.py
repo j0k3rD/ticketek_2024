@@ -6,16 +6,18 @@ from typing import Annotated
 from src.services.event_service import (
     get_events,
     get_event,
-    get_event_by_name,
-    create_event
+    get_event_by_name
 )
+# from src.admin.admin_services import (
+#     update_event,
+#     delete_event
+# )
 
 event = APIRouter()
 
 @event.get("/events", tags=["events"])
 def get_events_route(session: Session = Depends(get_session)) -> list[Event]:
     return get_events(session)
-
 
 @event.get(
     "/events/{id}",
@@ -40,10 +42,10 @@ def get_event_by_name_route(
 ) -> Event:
     return get_event_by_name(session, name)
 
-
-@event.post("/events", response_model=Event, tags=["events"])
-def create_event_route(
-    event_data: Event,
-    session: Session = Depends(get_session),
-) -> Event:
-    return create_event(session, event_data)
+#! SOLO PARA ADMIN
+# @event.post("/events", response_model=Event, tags=["events"])
+# def create_event_route(
+#     event_data: Event,
+#     session: Session = Depends(get_session),
+# ) -> Event:
+#     return create_event(session, event_data)

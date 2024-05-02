@@ -17,15 +17,3 @@ def get_event_by_name(session: Session, title: str) -> Event:
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
     return event
-
-def create_event(session: Session, event_data: Event) -> Event:
-    event = Event(
-        title=event_data.title,
-        description=event_data.description,
-        location=event_data.location,
-        max_attendees=event_data.max_attendees,
-        )
-    session.add(event)
-    session.commit()
-    session.refresh(event)
-    return event
