@@ -3,6 +3,7 @@ from src.database.db import get_session
 from src.database.models import Event, Registration
 from sqlmodel import Session, select
 from fastapi import HTTPException
+from src.utils.send_email import send_email
 
 load_dotenv()
 
@@ -59,7 +60,26 @@ def approve_registration(session: Session, registration_id: int) -> Registration
         raise HTTPException(status_code=404, detail="Registration not found")
 
     registration.status = "approved"
+
+    # Agregar el usuario a la lista de asistentes del evento
+    event = session.get(Event, registration.event_id)
+
+    # Guardar datos del usuario como un diccionario en la lista de asistentes
+    event.attendees[registration.id] = {
+        "name": registration.name,
+        "email": registration.email,
+        "phone": registration.phone,
+        "dni": registration.dni,
+    }
+
     session.add(registration)
     session.commit()
     session.refresh(registration)
+
+    send_email(
+        registration.email,
+        "Registro Aprobado!",
+        f"Su registro al evento {event.name} ha sido aprobado."
+    )
+
     return registration

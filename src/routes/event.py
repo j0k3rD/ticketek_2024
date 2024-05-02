@@ -7,10 +7,10 @@ from src.services.event_service import (
     get_events,
     get_event,
     get_event_by_name,
+    create_event
 )
 
 event = APIRouter()
-
 
 @event.get("/events", tags=["events"])
 def get_events_route(session: Session = Depends(get_session)) -> list[Event]:
@@ -30,7 +30,7 @@ def get_event_route(
 
 
 @event.get(
-    "/events/{name}",
+    "/events/by-name/{name}",
     response_model=Event,
     tags=["events"],
 )
@@ -39,3 +39,11 @@ def get_event_by_name_route(
     session: Session = Depends(get_session),
 ) -> Event:
     return get_event_by_name(session, name)
+
+
+@event.post("/events", response_model=Event, tags=["events"])
+def create_event_route(
+    event_data: Event,
+    session: Session = Depends(get_session),
+) -> Event:
+    return create_event(session, event_data)

@@ -29,7 +29,8 @@ class EventBase(SQLModel):
     description: str
     location: Dict = Field(default_factory=dict, sa_column=Column(JSON))
     max_attendees: int
-
+    # Lista para almacenar los usuarios aprobados
+    attendees: Dict = Field(default_factory=dict, sa_column=Column(JSON))
 
 class Event(EventBase, table=True):
     id: int = Field(default=None, primary_key=True)

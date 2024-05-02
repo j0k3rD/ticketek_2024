@@ -6,11 +6,18 @@ from sqlmodel import Session, select
 # from src.routes.auth import RoleChecker
 from src.services.registration_service import (
     get_registrations_by_dni,
+    get_registrations,
     # delete_registration,
-    create_registration
+    create_registration,
+    approve_registration
 )
 
 registration = APIRouter()
+
+
+@registration.get("/registrations", tags=["registrations"])
+def get_registrations_route(session: Session = Depends(get_session)) -> list[Registration]:
+    return get_registrations(session)
 
 
 @registration.get("/events/registrations/{dni}", tags=["registrations"])
@@ -28,3 +35,11 @@ def create_registration_route(
     session: Session = Depends(get_session),
 ) -> Registration:
     return create_registration(session, registration_data)
+
+
+@registration.put("/events/registrations/{registration_id}/approve", tags=["registrations"])
+def approve_registration_route(
+    registration_id: Annotated[int, Path(name="The Registration ID")],
+    session: Session = Depends(get_session),
+) -> Registration:
+    return approve_registration(session, registration_id)
