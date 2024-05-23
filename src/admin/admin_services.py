@@ -6,21 +6,28 @@ from fastapi import HTTPException
 from src.utils.send_email import send_email
 import random
 from datetime import datetime
+from src.google.google import GoogleGetLocation
+from sqlalchemy.orm.session import Session as SqlAlchemySession
+
 
 load_dotenv()
+
+geolocation = GoogleGetLocation()
 
 # --Eventos
 
 
-def create_event(session: Session, event_data: Event) -> Event:
+async def create_event(session: Session, event_data: Event) -> Event:
     correct_date = datetime.strptime(event_data.date, "%d-%m-%Y").strftime("%Y-%m-%d")
+    place_data = await geolocation.get_location(event_data.address)
 
     event = Event(
         title=event_data.title,
         description=event_data.description,
+        address=event_data.address,
         max_attendees=event_data.max_attendees,
         date=correct_date,
-        location=event_data.location,
+        location=place_data,
     )
     session.add(event)
     session.commit()
@@ -35,6 +42,7 @@ def delete_event(session: Session, event_id: int) -> Event:
 
     session.delete(event)
     session.commit()
+    return event
 
 
 def update_event(session: Session, event_id: int, event_data: Event) -> Event:
@@ -70,30 +78,41 @@ def get_registrations_by_event_id(
     ).all()
 
 
-def approve_registration(session: Session, registration_id: int) -> Registration:
+def approve_registration(
+    session: SqlAlchemySession, registration_id: int
+) -> Registration:
     registration = session.get(Registration, registration_id)
     if registration is None:
         raise HTTPException(status_code=404, detail="Registration not found")
 
     registration.status = "approved"
 
-    # General codigo random de 6 digitos para el token
+    # Generar un código de 6 dígitos aleatorio para el token
     registration.token = "".join(random.choices("0123456789ABC", k=6))
-    # Agregar el usuario a la lista de asistentes del evento
-    event = session.get(Event, registration.event_id)
 
-    # Guardar datos del usuario como un diccionario en la lista de asistentes
-    event.attendees[registration.id] = {
+    event = session.get(Event, registration.event_id)
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    # Obtener la lista de asistentes actual del evento
+    attendees_list = dict(event.attendees) if event.attendees else {}
+
+    # Agregar el usuario a la lista de asistentes
+    attendees_list[str(registration.id)] = {
         "name": registration.name,
         "email": registration.email,
         "phone": registration.phone,
         "dni": registration.dni,
-        "token": registration.token,
     }
 
+    # Actualizar la lista de asistentes del evento
+    event.attendees = attendees_list
+
     session.add(registration)
+    session.add(event)
     session.commit()
     session.refresh(registration)
+    session.refresh(event)
 
     send_email(
         registration.email,

@@ -31,16 +31,33 @@ def delete_registration(
     event = session.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
+
     registration = session.get(Registration, registration_id)
+    if registration is None:
+        raise HTTPException(status_code=404, detail="Registration not found")
+
     if registration.token != token:
         raise HTTPException(status_code=403, detail="Invalid token")
+
+    # Obtener la lista de asistentes actual del evento
+    attendees_list = dict(event.attendees) if event.attendees else {}
+
+    # Eliminar el registro de la lista de asistentes
+    if str(registration_id) in attendees_list:
+        del attendees_list[str(registration_id)]
+
+    # Actualizar la lista de asistentes del evento
+    event.attendees = attendees_list
+
     session.delete(registration)
+    session.add(event)
     session.commit()
+
     return registration
 
 
 def create_registration(
-    session: Session, registration_data: Registration
+    session: Session, event_id: int, registration_data: Registration
 ) -> Registration:
 
     registration = Registration(
@@ -48,19 +65,16 @@ def create_registration(
         email=registration_data.email,
         phone=registration_data.phone,
         dni=registration_data.dni,
-        status=registration_data.status,
-        event_id=registration_data.event_id,
+        event_id=event_id,
     )
 
-    event_check = session.get(Event, registration_data.event_id)
+    event_check = session.get(Event, event_id)
     if event_check is None:
-        return "Event does not exist."
+        raise HTTPException(status_code=404, detail="Event does not exist.")
     else:
         # Checkear si queda un espacio disponible en el evento para registrarse
         if event_check.max_attendees <= len(event_check.registrations):
-            print("event_check.max_attendees", event_check.max_attendees)
-            print("len(event_check.registrations)", len(event_check.registrations))
-            return "Event is full."
+            raise HTTPException(status_code=400, detail="Event is full.")
 
     # Checkear si el dni o el email ya están registrados en el evento
     email_and_dni_in_event = session.exec(
@@ -69,9 +83,13 @@ def create_registration(
 
     for existing_registration in email_and_dni_in_event:
         if existing_registration.dni == registration_data.dni:
-            return "DNI already registered in this event."
+            raise HTTPException(
+                status_code=400, detail="DNI already registered in this event."
+            )
         if existing_registration.email == registration_data.email:
-            return "Email already registered in this event."
+            raise HTTPException(
+                status_code=400, detail="Email already registered in this event."
+            )
 
     session.add(registration)
     session.commit()

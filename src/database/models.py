@@ -26,6 +26,7 @@ from sqlalchemy import Column, JSON
 
 class EventBase(SQLModel):
     title: str
+    address: str
     description: str
     max_attendees: int
     # Lista para almacenar los usuarios aprobados
