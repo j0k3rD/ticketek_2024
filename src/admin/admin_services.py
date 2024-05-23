@@ -98,7 +98,7 @@ def approve_registration(session: Session, registration_id: int) -> Registration
     send_email(
         registration.email,
         "Registro Aprobado!",
-        f"Su registro al evento {event.title} ha sido aprobado, su clave de validacion es {registration.token}.",
+        f"Su registro al evento {event.title} ha sido aprobado. En caso de que quiera darse de baja deberá usar este token {registration.token}.",
     )
 
     return registration

@@ -2,7 +2,7 @@ from sqlmodel import Field, SQLModel, Relationship, AutoString
 from pydantic import EmailStr
 from enum import Enum
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 from sqlalchemy import Column, JSON
 
 # -------------------------------------------------------------------------------------------------#
@@ -54,12 +54,12 @@ class RegistrationBase(SQLModel):
     phone: str
     dni: int
     status: RegistrationStatus = RegistrationStatus.pending
-    token: str = Field(default=None)
     event_id: int = Field(foreign_key="event.id")
 
 
 class Registration(RegistrationBase, table=True):
     id: int = Field(default=None, primary_key=True)
+    token: Optional[str] = Field(default=None)
     # email: str = Field(index=True, unique=True)
     # dni: str = Field(index=True, unique=True)
     event: "Event" = Relationship(back_populates="registrations")

@@ -2,10 +2,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from src.database.db import init_db
-from src.routes import (
-    event,
-    registration
-)
+from src.routes import event, registration
 
 load_dotenv()
 

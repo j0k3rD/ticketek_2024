@@ -4,7 +4,12 @@ from fastapi import HTTPException
 
 
 def get_registrations_by_dni(session: Session, dni: int) -> Registration:
-    return session.exec(select(Registration).where(Registration.dni == dni)).all()
+    registration = session.exec(
+        select(Registration).where(Registration.dni == dni)
+    ).first()
+    if registration is None:
+        raise HTTPException(status_code=404, detail="Registration not found")
+    return registration
 
 
 # def update_registration(session: Session, registration_id: int, registration_data: Registration) -> Registration:
@@ -21,12 +26,14 @@ def get_registrations_by_dni(session: Session, dni: int) -> Registration:
 
 
 def delete_registration(
-    session: Session, event_id: int, registration_id: int
+    session: Session, event_id: int, registration_id: int, token: str
 ) -> Registration:
     event = session.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
     registration = session.get(Registration, registration_id)
+    if registration.token != token:
+        raise HTTPException(status_code=403, detail="Invalid token")
     session.delete(registration)
     session.commit()
     return registration
@@ -35,6 +42,7 @@ def delete_registration(
 def create_registration(
     session: Session, registration_data: Registration
 ) -> Registration:
+
     registration = Registration(
         name=registration_data.name,
         email=registration_data.email,
