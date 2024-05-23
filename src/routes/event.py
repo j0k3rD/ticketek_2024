@@ -3,21 +3,17 @@ from src.database.models import Event
 from sqlmodel import Session
 from src.database.db import get_session
 from typing import Annotated
-from src.services.event_service import (
-    get_events,
-    get_event,
-    get_event_by_name
-)
-# from src.admin.admin_services import (
-#     update_event,
-#     delete_event
-# )
+from src.services.event_service import get_events, get_event, get_event_by_name
+
+from src.admin.admin_services import update_event, delete_event, create_event
 
 event = APIRouter()
+
 
 @event.get("/events", tags=["events"])
 def get_events_route(session: Session = Depends(get_session)) -> list[Event]:
     return get_events(session)
+
 
 @event.get(
     "/events/{id}",
@@ -41,6 +37,7 @@ def get_event_by_name_route(
     session: Session = Depends(get_session),
 ) -> Event:
     return get_event_by_name(session, name)
+
 
 #! SOLO PARA ADMIN
 # @event.post("/events", response_model=Event, tags=["events"])

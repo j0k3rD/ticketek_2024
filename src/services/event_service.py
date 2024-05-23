@@ -6,11 +6,13 @@ from fastapi import HTTPException
 def get_events(session: Session) -> list[Event]:
     return session.exec(select(Event)).all()
 
+
 def get_event(session: Session, event_id: int) -> Event:
     event = session.get(Event, event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Events not found")
     return event
+
 
 def get_event_by_name(session: Session, title: str) -> Event:
     event = session.exec(select(Event).where(Event.title == title)).first()
