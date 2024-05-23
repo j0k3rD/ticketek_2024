@@ -10,56 +10,38 @@ from src.services.registration_service import (
     delete_registration,
 )
 
-from src.admin.admin_services import update_event, delete_event, approve_registration
+from src.admin.admin_services import (
+    update_event,
+    delete_event,
+    approve_registration,
+    get_registrations,
+)
 
 registration = APIRouter()
 
 
-@registration.get("/events/registrations/{dni}", tags=["registrations"])
+@registration.get("/registrations/{dni}", tags=["registrations"])
 def get_registrations_by_dni_route(
     dni: Annotated[int, Path(name="The DNI")],
     session: Session = Depends(get_session),
-) -> Registration:
+) -> list[Registration]:
     return get_registrations_by_dni(session, dni)
 
 
-@registration.post("/events/{event_id}/registrations", tags=["registrations"])
-def create_registration_route(
-    event_id: Annotated[int, Path(name="The Event ID")],
-    registration_data: Annotated[
-        Registration,
-        Body(
-            examples=[
-                {
-                    "name": "John Doe",
-                    "email": "pepe@gmail.com",
-                    "phone": +542612345678,
-                    "dni": 12345678,
-                    "event_id": 4,
-                }
-            ]
-        ),
-    ],
-    session: Session = Depends(get_session),
-) -> Registration:
-    return create_registration(session, event_id, registration_data)
-
-
-@registration.delete(
-    "/events/{event_id}/registrations/{registration_id}/{token}", tags=["registrations"]
-)
+@registration.delete("/registrations/{token}", tags=["registrations"])
 def delete_registration_route(
-    event_id: Annotated[int, Path(name="The Event ID")],
-    registration_id: Annotated[int, Path(name="The Registration ID")],
     token: Annotated[str, Path(name="The Registration Token")],
     session: Session = Depends(get_session),
 ) -> Registration:
-    return delete_registration(session, event_id, registration_id, token)
+    # Return message
+    return delete_registration(session, token)
 
 
 #! SOLO PARA ADMIN
 # @registration.get("/registrations", tags=["registrations"])
-# def get_registrations_route(session: Session = Depends(get_session)) -> list[Registration]:
+# def get_registrations_route(
+#     session: Session = Depends(get_session),
+# ) -> list[Registration]:
 #     return get_registrations(session)
 
 

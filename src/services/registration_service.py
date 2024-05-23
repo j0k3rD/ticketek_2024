@@ -1,12 +1,14 @@
 from src.database.models import Registration, Event
 from sqlmodel import Session, select
 from fastapi import HTTPException
+from src.services.event_service import get_event_by_registration_id
 
 
-def get_registrations_by_dni(session: Session, dni: int) -> Registration:
+def get_registrations_by_dni(session: Session, dni: int) -> list[Registration]:
     registration = session.exec(
         select(Registration).where(Registration.dni == dni)
-    ).first()
+    ).all()
+
     if registration is None:
         raise HTTPException(status_code=404, detail="Registration not found")
     return registration
@@ -25,26 +27,33 @@ def get_registrations_by_dni(session: Session, dni: int) -> Registration:
 #     return registration
 
 
-def delete_registration(
-    session: Session, event_id: int, registration_id: int, token: str
-) -> Registration:
-    event = session.get(Event, event_id)
-    if event is None:
-        raise HTTPException(status_code=404, detail="Event not found")
-
-    registration = session.get(Registration, registration_id)
+def token_in_registrations(session: Session, token: str) -> Registration:
+    registration = session.exec(
+        select(Registration).where(Registration.token == token)
+    ).first()
     if registration is None:
         raise HTTPException(status_code=404, detail="Registration not found")
+    return registration
+
+
+def delete_registration(session: Session, token: str) -> Registration:
+    registration = token_in_registrations(session, token)
 
     if registration.token != token:
         raise HTTPException(status_code=403, detail="Invalid token")
+
+    print("REGISTRATION: ", registration.id)
+    event = get_event_by_registration_id(session, registration.id)
+
+    if event is None:
+        raise HTTPException(status_code=404, detail="Event not found")
 
     # Obtener la lista de asistentes actual del evento
     attendees_list = dict(event.attendees) if event.attendees else {}
 
     # Eliminar el registro de la lista de asistentes
-    if str(registration_id) in attendees_list:
-        del attendees_list[str(registration_id)]
+    if str(registration.id) in attendees_list:
+        del attendees_list[str(registration.id)]
 
     # Actualizar la lista de asistentes del evento
     event.attendees = attendees_list
