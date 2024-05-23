@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Body
 from src.database.models import Event
 from sqlmodel import Session
 from src.database.db import get_session
@@ -40,9 +40,26 @@ def get_event_by_name_route(
 
 
 #! SOLO PARA ADMIN
-# @event.post("/events", response_model=Event, tags=["events"])
+# @event.post(
+#     "/events",
+#     response_model=Event,
+#     tags=["events"],
+# )
 # def create_event_route(
-#     event_data: Event,
+#     event_data: Annotated[
+#         Event,
+#         Body(
+#             examples=[
+#                 {
+#                     "title": "Event Title",
+#                     "description": "Event Description",
+#                     "max_attendees": 1000,
+#                     "location": {"address": "San Martin 123, San Rafael"},
+#                     "date": "31-12-2023",
+#                 }
+#             ]
+#         ),
+#     ],
 #     session: Session = Depends(get_session),
 # ) -> Event:
 #     return create_event(session, event_data)

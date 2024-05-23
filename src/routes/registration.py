@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path
+from fastapi import APIRouter, Depends, Path, Body
 from src.database.db import get_session
 from src.database.models import Registration
 from typing import Annotated
@@ -26,10 +26,23 @@ def get_registrations_by_dni_route(
 @registration.post("/events/{event_id}/registrations", tags=["registrations"])
 def create_registration_route(
     event_id: Annotated[int, Path(name="The Event ID")],
-    registration_data: Registration,
+    registration_data: Annotated[
+        Registration,
+        Body(
+            examples=[
+                {
+                    "name": "John Doe",
+                    "email": "pepe@gmail.com",
+                    "phone": +542612345678,
+                    "dni": 12345678,
+                    "event_id": 4,
+                }
+            ]
+        ),
+    ],
     session: Session = Depends(get_session),
 ) -> Registration:
-    return create_registration(session, registration_data)
+    return create_registration(session, event_id, registration_data)
 
 
 @registration.delete(
