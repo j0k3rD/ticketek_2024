@@ -1,206 +1,276 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: TICKETEK - Event Management API
-  description: API for managing events and registrations
-  version: 1.0.0
-servers:
-  - url: http://localhost:8000
+  description: |2
+
+        API for managing events and registrations
+  version: 0.0.1
 paths:
   /events:
-    # post:
-    #   tags:
-    #     - events
-    #   summary: Create a new event
-    #   requestBody:
-    #     required: true
-    #     content:
-    #       application/json:
-    #         schema:
-    #           $ref: '#/components/schemas/Event'
-    #   responses:
-    #     '201':
-    #       description: Event created successfully
     get:
       tags:
         - events
-      summary: Get the list of events
-      parameters:
-        - in: query
-          name: name
-          description: Filter events by name
-          schema:
-            type: string
-            format: date-time
-      
+      summary: Get Events Route
+      operationId: get_events_route_events_get
       responses:
-        '200':
-          description: List of events
+        "200":
+          description: Successful Response
           content:
             application/json:
               schema:
-                type: array
                 items:
-                  $ref: '#/components/schemas/EventWithRegistrations'
-
+                  $ref: "#/components/schemas/Event"
+                type: array
+                title: Response Get Events Route Events Get
   /events/{id}:
     get:
       tags:
         - events
-      summary: Get details of a specific event
+      summary: Get Event Route
+      operationId: get_event_route_events__id__get
       parameters:
-        - in: path
-          name: id
+        - name: id
+          in: path
           required: true
-          description: ID of the event to retrieve
           schema:
             type: integer
+            title: Id
       responses:
-        '200':
-          description: Details of the requested event
+        "200":
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventWithRegistrations'
-  
-  /events/{id}/registrations:
+                $ref: "#/components/schemas/Event"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /events/by-name/{name}:
+    get:
+      tags:
+        - events
+      summary: Get Event By Name Route
+      operationId: get_event_by_name_route_events_by_name__name__get
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Name
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /events/{event_id}/registrations:
     post:
       tags:
-        - registrations
-      summary: Register for an event
+        - events
+      summary: Create Registration Route
+      operationId: create_registration_route_events__event_id__registrations_post
       parameters:
-        - in: path
-          name: id
+        - name: event_id
+          in: path
           required: true
-          description: ID of the event to register for
           schema:
             type: integer
+            title: Event Id
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Registration'
+              allOf:
+                - $ref: "#/components/schemas/Registration"
+              title: Registration Data
       responses:
-        '200':
-          description: Registration successful
-    
-    # get:
-    #   tags:
-    #     - registrations
-    #   summary: Get the list of registrations for an event
-    #   parameters:
-    #     - in: path
-    #       name: id
-    #       required: true
-    #       description: ID of the event to retrieve registrations for
-    #       schema:
-    #         type: integer
-    #   responses:
-    #     '200':
-    #       description: List of registrations for the event
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: array
-    #             items:
-    #               $ref: '#/components/schemas/Registration'
-
-  /registrations?dni={dni}&email={email}:
-    get:
-      tags:
-        - registrations
-      summary: Get registration by DNI
-      parameters:
-        - in: path
-          name: dni
-          required: true
-          description: DNI of the registration to retrieve
-          schema:
-            type: string
-        - in: path
-          name: email
-          required: true
-          description: Email of the registration to retrieve
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Details of the requested registration
+        "200":
+          description: Successful Response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Registration'
-
-  /events/{id}/registrations/{registrationId}:
+                $ref: "#/components/schemas/Registration"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /registrations/{dni}:
+    get:
+      tags:
+        - registrations
+      summary: Get Registrations By Dni Route
+      operationId: get_registrations_by_dni_route_registrations__dni__get
+      parameters:
+        - name: dni
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Dni
+      responses:
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Registration"
+                title: Response Get Registrations By Dni Route Registrations  Dni  Get
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+  /registrations/{token}:
     delete:
       tags:
         - registrations
-      summary: Cancel registration
+      summary: Delete Registration Route
+      operationId: delete_registration_route_registrations__token__delete
       parameters:
-        - in: path
-          name: id
+        - name: token
+          in: path
           required: true
-          description: ID of the event from which to cancel registration
           schema:
-            type: integer
-        - in: path
-          name: registrationId
-          required: true
-          description: ID of the registration to cancel
-          schema:
-            type: integer
+            type: string
+            title: Token
       responses:
-        '204':
-          description: Registration canceled successfully
+        "200":
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Registration"
+        "422":
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
 components:
   schemas:
     Event:
-      type: object
       properties:
-        id:
-          type: integer
         title:
           type: string
+          title: Title
+        address:
+          type: string
+          title: Address
         description:
           type: string
+          title: Description
+        max_attendees:
+          type: integer
+          title: Max Attendees
+        attendees:
+          type: object
+          title: Attendees
+        id:
+          type: integer
+          title: Id
+        location:
+          type: object
+          title: Location
         date:
           type: string
           format: date-time
-        location:
-          type: object
-          properties:
-            address:
-              type: string
-            latitude:
-              type: number
-            longitude:
-              type: number
-        max_attendees:
-          type: integer
-    Registration:
+          title: Date
       type: object
+      required:
+        - title
+        - address
+        - description
+        - max_attendees
+        - date
+      title: Event
+    HTTPValidationError:
       properties:
-        id:
-          type: integer
+        detail:
+          items:
+            $ref: "#/components/schemas/ValidationError"
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Registration:
+      properties:
         name:
           type: string
-        last_name:
-          type: string
-        phone:
-          type: string
-        dni:
-          type: string
+          title: Name
         email:
           type: string
-        status:
+          format: email
+          title: Email
+        phone:
           type: string
-          enum: [pending, approved, rejected]
-    EventWithRegistrations:
-      allOf:
-        - $ref: '#/components/schemas/Event'
-        - type: object
-          properties:
-            registrations:
-              type: array
-              items:
-                $ref: '#/components/schemas/Registration'
+          title: Phone
+        dni:
+          type: integer
+          title: Dni
+        status:
+          allOf:
+            - $ref: "#/components/schemas/RegistrationStatus"
+          default: pending
+        event_id:
+          type: integer
+          title: Event Id
+        id:
+          type: integer
+          title: Id
+        token:
+          anyOf:
+            - type: string
+          title: Token
+      type: object
+      required:
+        - name
+        - email
+        - phone
+        - dni
+        - event_id
+      title: Registration
+    RegistrationStatus:
+      type: string
+      enum:
+        - pending
+        - approved
+        - rejected
+      title: RegistrationStatus
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
