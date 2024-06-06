@@ -3,22 +3,22 @@ from main import app
 
 client = TestClient(app)
 
-def test_create_event(mock_db_session):
+def test_create_registration(mock_db_session):
     response = client.post(
-        "/events",
+        "/registrations",
         json={
             "name": "Test Event",
-            "date": "2023-01-01",
-            "location": "Test Location",
-            "price": 100,
+            "email": "test@email.com",
+            "phone": "123456789",
+            "dni": 123456789,
         },
     )
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Test Event"
-    assert data["date"] == "2023-01-01"
-    assert data["location"] == "Test Location"
-    assert data["price"] == 100
+    assert data["email"] == "test@email.com"
+    assert data["phone"] == "123456789"
+    assert data["dni"] == 123456789
 
     mock_db_session.add.assert_called_once()
     mock_db_session.commit.assert_called_once()
