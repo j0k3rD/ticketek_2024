@@ -61,41 +61,41 @@ def create_registration_route(
 
 
 #! SOLO PARA ADMIN
-# @event.post(
-#     "/events",
-#     response_model=Event,
-#     tags=["events"],
-# )
-# async def create_event_route(
-#     event_data: Annotated[
-#         Event,
-#         Body(
-#             examples=[
-#                 {
-#                     "title": "Event Title",
-#                     "description": "Event Description",
-#                     "max_attendees": 1000,
-#                     "address": "San Martin 123, San Rafael, Mendoza, Argentina",
-#                     "date": "31-12-2023",
-#                 }
-#             ]
-#         ),
-#     ],
-#     session: Session = Depends(get_session),
-# ) -> Event:
-#     event = await create_event(session, event_data)
-#     if event is None:
-#         raise HTTPException(status_code=400, detail="Failed to create event")
-#     return event
+@event.post(
+    "/events",
+    response_model=Event,
+    tags=["events"],
+)
+async def create_event_route(
+    event_data: Annotated[
+        Event,
+        Body(
+            examples=[
+                {
+                    "title": "Event Title",
+                    "description": "Event Description",
+                    "max_attendees": 1000,
+                    "address": "San Martin 123, San Rafael, Mendoza, Argentina",
+                    "date": "31-12-2023",
+                }
+            ]
+        ),
+    ],
+    session: Session = Depends(get_session),
+) -> Event:
+    event = await create_event(session, event_data)
+    if event is None:
+        raise HTTPException(status_code=400, detail="Failed to create event")
+    return event
 
 
-# @event.delete(
-#     "/events/{id}",
-#     response_model=Event,
-#     tags=["events"],
-# )
-# def delete_event_route(
-#     id: Annotated[int, Path(name="The Event ID")],
-#     session: Session = Depends(get_session),
-# ) -> Event:
-#     return delete_event(session, id)
+@event.delete(
+    "/events/{id}",
+    response_model=Event,
+    tags=["events"],
+)
+def delete_event_route(
+    id: Annotated[int, Path(name="The Event ID")],
+    session: Session = Depends(get_session),
+) -> Event:
+    return delete_event(session, id)
