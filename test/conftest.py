@@ -1,8 +1,12 @@
 from unittest.mock import MagicMock
 import pytest
+import sys,os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from main import app
 from src.database.db import get_session
+
 
 mock_session = MagicMock()
 
