@@ -49,7 +49,7 @@ def setup() -> None:
 def registration_data():
     return Registration(
         name="John Doe",
-        email="john.doe@alumno.com",
+        email="aaron.moya.csgo@gmail.com",
         phone="2612345678",
         dni=12345678,
         status="pending",
