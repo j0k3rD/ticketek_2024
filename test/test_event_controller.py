@@ -1,77 +1,62 @@
-from src.services.event_service import get_events, get_event, get_event_by_name, get_event_by_registration_id
-import pytest
-from fastapi import HTTPException
+from conftest import client
+
+def test_get_events(test_event):
+    event, _ = test_event
+
+    response = client.get("/events")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["title"] == event.title
+    assert data[0]["description"] == event.description
+    assert data[0]["address"] == event.address
+    assert data[0]["max_attendees"] == event.max_attendees
+    assert data[0]["date"] == event.date.isoformat()
+    assert data[0]["location"] == event.location
 
 
-def test_get_events(setup_events):
-    session, event1, event2 = setup_events
+def test_get_event_by_id(test_event):
+    event, _ = test_event
 
-    events = get_events(session)
-
-    assert isinstance(events, list)
-    assert len(events) == 2
-
-    assert events[0].title == "Event 1"
-    assert events[1].title == "Event 2"
-
-
-def test_get_event(setup_events):
-    session, event1, event2 = setup_events
-
-    event = get_event(session, event1.id)
-
-    assert event.title == "Event 1"
+    response = client.get(f"/events/{event.id}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["title"] == event.title
+    assert data["description"] == event.description
+    assert data["address"] == event.address
+    assert data["max_attendees"] == event.max_attendees
+    assert data["date"] == event.date.isoformat()
+    assert data["location"] == event.location
 
 
-def test_get_event_failure(setup_events):
-    session, event1, event2 = setup_events
-
-    with pytest.raises(HTTPException) as exc_info:
-        get_event(session, 999)
-
-    assert exc_info.value.status_code == 404
-    assert "Event with id 999 not found" in exc_info.value.detail
+def test_get_event_by_id_not_found():
+    response = client.get("/events/9999")
+    assert response.status_code == 404
+    data = response.json()
+    assert data["detail"] == "Event with id 9999 not found"
 
 
+def test_get_event_by_name(test_event):
+    event, _ = test_event
 
-def test_get_event_by_name_success(setup_events):
-    session, event1, event2 = setup_events
-
-    event = get_event_by_name(session, "Event 2")
-
-    assert event.title == "Event 2"
-
-
-def test_get_event_by_name_failure(setup_events):
-    session, event1, event2 = setup_events
-
-    with pytest.raises(HTTPException) as exc_info:
-        get_event_by_name(session, "Nonexistent Event")
-
-    assert exc_info.value.status_code == 404
-    assert "Event with title 'Nonexistent Event' not found" in exc_info.value.detail
+    response = client.get(f"/events/by-name/{event.title}")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["title"] == event.title
+    assert data["description"] == event.description
+    assert data["address"] == event.address
+    assert data["max_attendees"] == event.max_attendees
+    assert data["date"] == event.date.isoformat()
+    assert data["location"] == event.location
 
 
-def test_get_event_by_registration_id(setup_events, registration_data):
-    session, event1, event2 = setup_events
-
-    # Crear una inscripción para el evento 1
-    registration_data.event_id = event1.id
-    session.add(registration_data)
-    session.commit()
-
-    # Obtener el evento asociado a la inscripción
-    event = get_event_by_registration_id(session, registration_data.id)
-
-    assert event.title == "Event 1"
+def test_get_event_by_name_not_found():
+    non_existent_event_name = "Nonexistent Event"
+    response = client.get(f"/events/by-name/{non_existent_event_name}")
+    assert response.status_code == 404
 
 
-def test_get_event_by_registration_id_failure(setup_events, registration_data):
-    session, event1, event2 = setup_events
 
-    # Intentar obtener un evento con un ID de registro que no existe
-    with pytest.raises(HTTPException) as exc_info:
-        get_event_by_registration_id(session, 999)
 
-    assert exc_info.value.status_code == 404
-    assert "Registration with id 999 not found" in exc_info.value.detail
+
