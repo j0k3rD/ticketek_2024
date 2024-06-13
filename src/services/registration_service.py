@@ -5,11 +5,9 @@ from src.services.event_service import get_event_by_registration_id
 
 
 def get_registrations_by_dni(session: Session, dni: int) -> list[Registration]:
-    registration = session.exec(
-        select(Registration).where(Registration.dni == dni)
-    ).all()
+    registration = session.query(Registration).filter(Registration.dni == dni).all()
 
-    if registration is None:
+    if not registration:
         raise HTTPException(status_code=404, detail="Registration not found")
     return registration
 
@@ -28,9 +26,7 @@ def get_registrations_by_dni(session: Session, dni: int) -> list[Registration]:
 
 
 def token_in_registrations(session: Session, token: str) -> Registration:
-    registration = session.exec(
-        select(Registration).where(Registration.token == token)
-    ).first()
+    registration = session.query(Registration).filter(Registration.token == token).first()
     if registration is None:
         raise HTTPException(status_code=404, detail="Registration not found")
     return registration
@@ -69,15 +65,7 @@ def create_registration(
     session: Session, event_id: int, registration_data: Registration
 ) -> Registration:
 
-    registration = Registration(
-        name=registration_data.name,
-        email=registration_data.email,
-        phone=registration_data.phone,
-        dni=registration_data.dni,
-        event_id=event_id,
-    )
-
-    event_check = session.get(Event, event_id)
+    event_check = session.query(Event).filter(Event.id == event_id).first()
     if event_check is None:
         raise HTTPException(status_code=404, detail="Event does not exist.")
     else:
@@ -85,26 +73,24 @@ def create_registration(
         if event_check.max_attendees <= len(event_check.registrations):
             raise HTTPException(status_code=400, detail="Event is full.")
 
-    # Checkear si el dni o el email ya están registrados en el evento
-    email_and_dni_in_event = session.exec(
-        select(Registration).where(Registration.event_id == registration_data.event_id)
-    ).all()
+        registration = Registration(**registration_data.model_dump(), event_id=event_id)
 
-    for existing_registration in email_and_dni_in_event:
-        if existing_registration.dni == registration_data.dni:
-            raise HTTPException(
-                status_code=400, detail="DNI already registered in this event."
-            )
-        if existing_registration.email == registration_data.email:
-            raise HTTPException(
-                status_code=400, detail="Email already registered in this event."
-            )
+        # Checkear si el dni o el email ya están registrados en el evento
+        email_and_dni_in_event = session.query(Registration).filter(
+            Registration.event_id == event_id
+        ).all()
 
-    session.add(registration)
-    session.commit()
-    session.refresh(registration)
+        for existing_registration in email_and_dni_in_event:
+            if existing_registration.dni == registration_data.dni:
+                raise HTTPException(
+                    status_code=400, detail="DNI already registered in this event."
+                )
+            if existing_registration.email == registration_data.email:
+                raise HTTPException(
+                    status_code=400, detail="Email already registered in this event."
+                )
+
+        session.add(registration)
+        session.commit()
+        session.refresh(registration)
     return registration
-
-
-def get_registrations(session: Session) -> list[Registration]:
-    return session.exec(select(Registration)).all()

@@ -14,12 +14,17 @@ load_dotenv()
 
 geolocation = GoogleGetLocation()
 
+
 # --Eventos
 
-
 async def create_event(session: Session, event_data: Event) -> Event:
-    correct_date = datetime.strptime(event_data.date, "%d-%m-%Y").strftime("%Y-%m-%d")
+    # Convertir la fecha a un objeto de fecha de Python
+    correct_date = datetime.strptime(event_data.date, "%d-%m-%Y")
+
     place_data = await geolocation.get_location(event_data.address)
+
+    # Convertir el diccionario de ubicación a una cadena de texto
+    location = str(place_data)
 
     event = Event(
         title=event_data.title,
@@ -27,7 +32,7 @@ async def create_event(session: Session, event_data: Event) -> Event:
         address=event_data.address,
         max_attendees=event_data.max_attendees,
         date=correct_date,
-        location=place_data,
+        location=location,
     )
     session.add(event)
     session.commit()
@@ -36,7 +41,7 @@ async def create_event(session: Session, event_data: Event) -> Event:
 
 
 def delete_event(session: Session, event_id: int) -> Event:
-    event = session.get(Event, event_id)
+    event = session.query(Event).filter(Event.id == event_id).first()
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 
@@ -46,7 +51,7 @@ def delete_event(session: Session, event_id: int) -> Event:
 
 
 def update_event(session: Session, event_id: int, event_data: Event) -> Event:
-    event = session.get(Event, event_id)
+    event = session.query(Event).filter(Event.id == event_id).first()
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 
@@ -61,27 +66,24 @@ def update_event(session: Session, event_id: int, event_data: Event) -> Event:
 
 # --Registrations
 
-
 def get_registrations(session: Session) -> list[Registration]:
-    return session.exec(select(Registration)).all()
+    return session.query(Registration).all()
 
 
 def get_registration(session: Session, registration_id: int) -> Registration:
-    return session.get(Registration, registration_id)
+    return session.query(Registration).filter(Registration.id == registration_id).first()
 
 
 def get_registrations_by_event_id(
     session: Session, event_id: int
 ) -> list[Registration]:
-    return session.exec(
-        select(Registration).where(Registration.event_id == event_id)
-    ).all()
+    return session.query(Registration).filter(Registration.event_id == event_id).all()
 
 
 def approve_registration(
     session: SqlAlchemySession, registration_id: int
 ) -> Registration:
-    registration = session.get(Registration, registration_id)
+    registration = session.query(Registration).filter(Registration.id == registration_id).first()
     if registration is None:
         raise HTTPException(status_code=404, detail="Registration not found")
 
@@ -90,7 +92,7 @@ def approve_registration(
     # Generar un código de 6 dígitos aleatorio para el token
     registration.token = "".join(random.choices("0123456789ABC", k=6))
 
-    event = session.get(Event, registration.event_id)
+    event = session.query(Event).filter(Event.id == registration.event_id).first()
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
 

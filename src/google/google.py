@@ -19,5 +19,6 @@ class GoogleGetLocation:
             data = response.json()
 
             # Converti a un json de latitud y longitud
+            print(data)
             location = data["results"][0]["geometry"]["location"]
             return location

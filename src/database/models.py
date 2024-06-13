@@ -5,25 +5,6 @@ from datetime import datetime
 from typing import Dict, Optional
 from sqlalchemy import Column, JSON
 
-# -------------------------------------------------------------------------------------------------#
-
-
-# class Roles(str, Enum):
-#     admin = "admin"
-#     user = "user"
-
-
-# -------------------------------------------------------------------------------------------------#
-
-
-# class Token(SQLModel):
-#     access_token: str | None
-#     refresh_token: str | None
-
-
-# -------------------------------------------------------------------------------------------------#
-
-
 class EventBase(SQLModel):
     title: str
     address: str
