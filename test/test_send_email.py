@@ -16,6 +16,7 @@ def test_approve_registration(setup_events, registration_data):
 
         mock_send_email.assert_called_once()
 
+        # Verifica que send_email fue llamado con los parámetros correctos
         mock_send_email.assert_called_with(
             registration_data.email,
             "Registro Aprobado!",
