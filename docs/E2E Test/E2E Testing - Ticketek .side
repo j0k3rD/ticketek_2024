@@ -1,7 +1,7 @@
 {
   "id": "b405e28e-1f2c-40be-9f8f-18fd3683c6dd",
   "version": "2.0",
-  "name": "testui2024",
+  "name": "E2E Testing - Ticketek ",
   "url": "https://eventify.tiiny.site",
   "tests": [{
     "id": "18c1174c-0688-4dc3-a722-3c29b0939df9",
@@ -47,7 +47,7 @@
         ["xpath=//form[@id='event_creation_form']/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
-      "value": "eze"
+      "value": "Event Test"
     }, {
       "id": "521a65b2-f974-4ffe-9864-df14c809d423",
       "comment": "",
@@ -75,7 +75,7 @@
         ["xpath=//form[@id='event_creation_form']/div[2]/textarea", "xpath:idRelative"],
         ["xpath=//textarea", "xpath:position"]
       ],
-      "value": "hola, mi nombre es ezequiel garcia, takataka takataka takataka asereje a ese dejedetudeje"
+      "value": "Lorem itsum dolor sit amet, consectetur adipisci elit."
     }, {
       "id": "891960b1-9d7a-4363-ac95-f190c70dc1d7",
       "comment": "",
@@ -215,7 +215,7 @@
     }]
   }, {
     "id": "e5aef33b-1a4a-488b-b56e-d23d38fc15b1",
-    "name": "Fail test capasity",
+    "name": "Fail Test - Guest capacity",
     "commands": [{
       "id": "0b5f4d80-aa0a-472e-99fd-1c938fb504d7",
       "comment": "",
@@ -257,7 +257,7 @@
         ["xpath=//form[@id='event_creation_form']/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
-      "value": "pitufo"
+      "value": "Event Test"
     }, {
       "id": "f1a5e71e-5876-4181-97ad-fae2e0d37f55",
       "comment": "",
@@ -285,7 +285,7 @@
         ["xpath=//form[@id='event_creation_form']/div[2]/textarea", "xpath:idRelative"],
         ["xpath=//textarea", "xpath:position"]
       ],
-      "value": "asereje a dejeasereje a dejeasereje a dejeasereje a dejeasereje a dejeasereje a dejeasereje a deje"
+      "value": "Lorem itsum dolor sit amet, consectetur adipisci elit."
     }, {
       "id": "f92a3d47-188a-4a2c-b58a-049fb2b61cbf",
       "comment": "",
@@ -420,7 +420,7 @@
     }]
   }, {
     "id": "20017013-eaea-472c-9bc0-f3b92116a5b1",
-    "name": "Fail test description",
+    "name": "Fail Test - Description Lenght",
     "commands": [{
       "id": "1ca0f21c-9b6f-46d4-bfbd-0b171d2b83f4",
       "comment": "",
@@ -462,7 +462,7 @@
         ["xpath=//form[@id='event_creation_form']/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
-      "value": "pitufo"
+      "value": "Event Test"
     }, {
       "id": "af3d02cd-4b04-41df-9e96-ba55414df08d",
       "comment": "",
@@ -490,7 +490,7 @@
         ["xpath=//form[@id='event_creation_form']/div[2]/textarea", "xpath:idRelative"],
         ["xpath=//textarea", "xpath:position"]
       ],
-      "value": "cuanto esta el kl de tomate"
+      "value": "Lorem itsum dolor sit amet."
     }, {
       "id": "a05daf29-a5f0-405d-ad1c-5877232ba124",
       "comment": "",
